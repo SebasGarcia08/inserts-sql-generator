@@ -40,7 +40,7 @@ class SpecificDBPopulator(object):
                 'fName': f"'{self.faker.first_name_female() if sex == 'F' else self.faker.first_name_male()}'",
                 'lName': f"'{self.faker.last_name()}'",
                 'address': f"'{self.faker.address()}'",
-                'DOB': f"TO_DATE('{self.faker.date()}', 'YYYY-MM-DD')",
+                'DOB': f"TO_DATE('{self.faker.date_of_birth(minimum_age=25, maximum_age=100)}', 'YYYY-MM-DD')",
                 'sex': f"'{sex}'",
                 'position': f"'{str(i)}_position'",
             }
