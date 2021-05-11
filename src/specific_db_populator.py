@@ -56,7 +56,7 @@ class SpecificDBPopulator(object):
     def _update_employees(self):
         updates = []
         for i in range(1, self.n+1):
-            updates.append(f"UPDATE Employee SET deptoNo = {i} WHERE empNo = {i};")
+            updates.append(f"UPDATE Employee SET deptNo = {i} WHERE empNo = {i};")
         random.shuffle(updates)
         self.statements += updates
 
