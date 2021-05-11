@@ -14,7 +14,7 @@ department is deleted, then all the employees associated with be also deleted, b
 
 ```
 git clone https://github.com/SebasGarcia08/inserts-sql-generator
-pip install -r requirements.txt
+pip install -r requirements.txt --user
 ```
 
 ## Usage
