@@ -19,13 +19,10 @@ class SpecificDBPopulator(object):
 
     def generate_inserts(self):
         self._generate_employees()
-        self.statements.append("\n")
         self._generate_departments()
-        self.statements.append("\n")
         self._update_employees()
-        self.statements.append("\n")
+        self._generate_projects()
         self._generate_works_on()
-        self.statements.append("\n")
         with open(self.output_file, 'w') as f:
             for s in self.statements:
                 f.write(s + "\n")
@@ -42,17 +39,18 @@ class SpecificDBPopulator(object):
                 'DOB': f"TO_DATE('{self.faker.date()}', 'YYYY-MM-DD')",
                 'sex': f"'{sex}'",
                 'position': f"'{str(i)}_position'",
-                'deptNo': "NULL"
             }
             keys = ','.join(list(field2val.keys()))
             values = ','.join(list(field2val.values()))
             self.statements.append(f"INSERT INTO Employee ({keys}) VALUES ({values});")
             self.employees.add(str(i))
+        self.statements.append("\n")
 
     def _generate_departments(self):
         for i in range(1, (self.n // 2) + 1):
             self.statements.append(f"INSERT INTO Department (deptNo, deptName, mgrEmpNo) VALUES ({i},'department_{i}',{i});")
             self.departments.add(str(i))
+        self.statements.append("\n")
 
     def _update_employees(self):
         updates = []
@@ -63,20 +61,26 @@ class SpecificDBPopulator(object):
             updates.append(f"UPDATE Employee SET deptNo = {depto} WHERE empNo = {i};")
         random.shuffle(updates)
         self.statements += updates
+        self.statements.append("\n")
 
     def _generate_projects(self):
         for i in range(1, (self.n // 2) + 1):
             self.statements.append(f"INSERT INTO Project (projNo, projName, deptNo) "
-                                   f"VALUES ({i}, {self.faker.bs()}, {i});")
+                                   f"VALUES ({i}, '{self.faker.bs()}', {i});")
+        self.statements.append("\n")
 
     def _generate_works_on(self):
-        for i in range(1, self.n+1):
-            date = f"TO_DATE('{self.faker.date_between()}','YYYY-MM-DD')"
-            self.statements.append(f"INSERT INTO WorksOn(empNo, projNo, dateworked, hoursWorked) "
-                                   f"VALUES ({i},{i},{date},{random.randint(1,10)});")
+        for emp_no in range(1, self.n+1):
+            num_records = random.randint(0, 5)
+            for _ in range(num_records):
+                proj_no = random.choice(list(self.departments))
+                date = f"TO_DATE('{self.faker.date_between()}','YYYY-MM-DD')"
+                self.statements.append(f"INSERT INTO WorksOn(empNo, projNo, dateworked, hoursWorked) "
+                                       f"VALUES ({emp_no},{proj_no},{date},{random.randint(1,10)});")
+        self.statements.append("\n")
 
 
 if __name__ == "__main__":
-    dbpop = SpecificDBPopulator(number_occurrences=40, output_file="../INSERTS.sql")
+    dbpop = SpecificDBPopulator(number_occurrences=2+20, output_file="../INSERTS.sql")
     dbpop.generate_inserts();
 
