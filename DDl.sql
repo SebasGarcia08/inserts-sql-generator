@@ -2,7 +2,7 @@ CREATE TABLE Employee (
   empNo INT,
   fName VARCHAR(50),
   lName VARCHAR(50),
-  address VARCHAR(50),
+  address VARCHAR(100),
   DOB DATE,
   sex CHAR(1),
   position VARCHAR(30),
