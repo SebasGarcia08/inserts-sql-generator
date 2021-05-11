@@ -38,7 +38,7 @@ optional arguments:
 Prints in terminal:
 
 ```shell
-$ python generate_inserts.py 20 -out
+$ python generate_inserts.py 20
 ```
 
 Saves to INSERTS.sql file:
