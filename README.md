@@ -1,6 +1,50 @@
 # Inserts SQL generator
 
+DDL: we added ON DELETE CASCADE in Employee on parent table "Department" because it makes sense that if a whole 
+department is deleted, then all the employees associated with be also deleted, but not viceversa
 
+```sql
+CREATE TABLE Employee (
+  empNo INT,
+  fName VARCHAR(50),
+  lName VARCHAR(50),
+  address VARCHAR(100),
+  DOB DATE,
+  sex CHAR(1),
+  position VARCHAR(30),
+  deptNo INT,
+  PRIMARY KEY (empNo)
+);
+CREATE TABLE Department (
+  deptNo INT,
+  deptName VARCHAR(50),
+  mgrEmpNo INT,
+  PRIMARY KEY (deptNo),
+  FOREIGN KEY (mgrEmpNo) REFERENCES Employee (empNo) ON  DELETE SET NULL
+);
+CREATE TABLE Project (
+  projNo INT,
+  projName VARCHAR(50),
+  deptNo INT,
+  PRIMARY KEY (projNo),
+  FOREIGN KEY (deptNo) REFERENCES Department (deptNo) ON  DELETE CASCADE
+);
+CREATE TABLE WorksOn (
+  empNo INT,
+  projNo INT,
+  dateworked Date,
+  hoursWorked Number(10,2),
+  PRIMARY KEY (empNo,projNo,dateworked),
+  FOREIGN KEY (EmpNo) REFERENCES Employee (EmpNo) ON DELETE SET NULL,
+  FOREIGN KEY (projNo) REFERENCES Project (projNo) ON DELETE CASCADE
+);
+
+ALTER TABLE Employee
+  ADD CONSTRAINT FK_Department_Employee FOREIGN KEY (deptNo)
+    REFERENCES Department (deptNo)
+    ON DELETE CASCADE
+;
+```
 
 # Get started
 
@@ -19,7 +63,7 @@ pip install -r requirements.txt
 ## Usage
 
 ```shell
-$ python gen_specific_inserts.py --help
+$ python generate_inserts.py --help
 usage: gen_specific_inserts.py [-h] [-out OUTPUT_FILE] n
 
 Oracle SQL generator for "Modelado TP3" specific DDL.
@@ -34,12 +78,16 @@ optional arguments:
                         specified, inserts are printed.
 ```
 
-```shell
-python gen_specific_inserts.py --help
-```
+Prints in terminal:
 
 ```shell
-python gen_specific_inserts.py -n 20 -out INSERTS.sql
+$ python generate_inserts.py 20 -out INSERTS.sql
+```
+
+Saves to INSERTS.sql file:
+
+```shell
+$ python generate_inserts.py 20 -out INSERTS.sql
 ```
 
 # Generating generic inserts
