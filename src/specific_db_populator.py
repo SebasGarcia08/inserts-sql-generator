@@ -52,11 +52,15 @@ class SpecificDBPopulator(object):
     def _generate_departments(self):
         for i in range(1, (self.n // 2) + 1):
             self.statements.append(f"INSERT INTO Department (deptNo, deptName, mgrEmpNo) VALUES ({i},'department_{i}',{i});")
+            self.departments.add(str(i))
 
     def _update_employees(self):
         updates = []
         for i in range(1, (self.n // 2)+1):
             updates.append(f"UPDATE Employee SET deptNo = {i} WHERE empNo = {i};")
+        for i in range((self.n // 2)+1, self.n+1):
+            depto = random.choice(list(self.departments))
+            updates.append(f"UPDATE Employee SET deptNo = {depto} WHERE empNo = {i};")
         random.shuffle(updates)
         self.statements += updates
 
