@@ -56,7 +56,10 @@ ALTER TABLE Department
             }, 
             ...
         ],
-        'pk': '<pk_attribute_name>',
+        'pk': [
+            '<pk_attribute_name>', # Available for unique or composite pks
+            ...
+        ],
         'fk': [
             {
                 'attribute': '<attribute_name_on_this_entity>',

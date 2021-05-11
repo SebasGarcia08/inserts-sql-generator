@@ -15,17 +15,43 @@ class DBPopulator(object):
     def generate_inserts(self):
         print(self.entity_name2num_fk)
 
-    def _extract_from_parentheses(self, s):
+    @staticmethod
+    def _extract_from_parentheses(s):
         return re.search('\(([^)]+)', s).group(1)
 
-    def _build_db_tree_attributes(self):
-        pass
+    def _process_primary_key(self, table_name, args):
+        pk_name = self._extract_from_parentheses(args[-1])
+        self.db_tree['entities'][table_name]["pk"] = pk_name
+
+    def _process_foreign_key(self, table_name, args):
+        if "fk" not in self.db_tree['entities'][table_name]:
+            self.db_tree['entities'][table_name]["fk"] = []
+
+        self.entity_name2num_fk[table_name] += 1
+
+        fk_name = self._extract_from_parentheses(args[2])
+        table_referenced = args[4]
+        field_referenced = self._extract_from_parentheses(args[5])
+
+        fk_subtree = {
+            'attribute': fk_name,
+            "entity": table_referenced,
+            "field": field_referenced,
+            'constraint_type': 'default',
+            'constraint_mode': None,
+        }
+
+        if len(args) > 5:
+            constraint_type = args[-2]
+            constraint_mode = args[-1]
+
+            fk_subtree['constraint_type'] = constraint_type
+            fk_subtree['constraint_mode'] = constraint_mode
+
+        self.db_tree['entities'][table_name]["fk"].append(fk_subtree)
 
     def _build_db_tree(self, input_sql):
         entities = input_sql.split("CREATE TABLE")[1:]
-        #pprint(entities)
-        alters = input_sql.split("ALTER TABLE")[1:]
-        pprint(alters)
         self.entity_name2num_fk = {}
 
         self.db_tree = {}
@@ -42,41 +68,45 @@ class DBPopulator(object):
             for attribute in lines[1:]:
                 args = attribute.strip().split(" ")
                 if args[0].startswith("PRIMARY"):
-                    pk_name = self._extract_from_parentheses(args[-1])
-                    self.db_tree['entities'][table_name]["pk"] = pk_name
+                    self._process_primary_key(table_name, args)
 
                 elif args[0].startswith("FOREIGN"):
-                    if "fk" not in self.db_tree['entities'][table_name]:
-                        self.db_tree['entities'][table_name]["fk"] = []
-
-                    self.entity_name2num_fk[table_name] += 1
-
-                    fk_name = self._extract_from_parentheses(args[2])
-                    table_referenced = args[4]
-                    field_referenced = self._extract_from_parentheses(args[5])
-
-                    fk_subtree = {
-                        fk_name: {
-                            "entity": table_referenced,
-                            "field": field_referenced
-                        }
-                    }
-
-                    if len(args) > 5:
-                        constraint_type = args[-2]
-                        constraint_mode = args[-1]
-
-                        fk_subtree[fk_name]["mode"] = {
-                            'constraint_type': constraint_type,
-                            'constraint_mode': constraint_mode
-                        }
-
-                    self.db_tree['entities'][table_name]["fk"].append(fk_subtree)
+                    self._process_foreign_key(table_name, args)
 
                 elif args[0].isalpha():
                     entity_type = re.sub(',', '', args[1])
                     attribute_name = args[0]
                     self.db_tree['entities'][table_name]["attributes"][attribute_name] = entity_type
+
+        alters = input_sql.split("ALTER TABLE")[1:]
+        for alter in alters:
+            lines = [line.strip() for line in alter.split("\n")]
+            altered_entity_raw = lines[0] # ALTER TABLE <entity>
+            constraint_raw = lines[1] # ADD CONSTRAINT <constraint_name> FOREIGN KEY (attribute)
+            references_raw = lines[2] # REFERENCES <referenced_entity> (referenced_attribute)
+            type_mode_raw = lines[3] # on Delete cascade
+            print(references_raw)
+
+            altered_entity = altered_entity_raw.split()[-1]
+            attribute_fk = self._extract_from_parentheses(constraint_raw) # attribute
+            referenced_entity = references_raw.split()[1]
+            referenced_attribute = self._extract_from_parentheses(references_raw)
+            constraint_type = type_mode_raw.split()[-2]
+            constraint_mode = type_mode_raw.split()[-1]
+
+            new_fk = {
+                'attribute': attribute_fk,
+                'entity': referenced_entity,
+                'field': referenced_attribute,
+                'constraint_type': constraint_type,
+                'constraint_mode': constraint_mode,
+            }
+
+            print(attribute_fk)
+            if 'fk' not in self.db_tree['entities'][altered_entity]:
+                self.db_tree['entities'][altered_entity]['fk'] = [new_fk]
+            else:
+                self.db_tree['entities'][altered_entity]['fk'].append(new_fk)
 
     def __str__(self):
         return json.dumps(self.db_tree, indent=4)
@@ -86,5 +116,5 @@ if __name__ == "__main__":
     from input import input_sql_2 as inp
     db_pop = DBPopulator(inp)
     print(db_pop)
-    print(db_pop.entity_name2num_fk)
-    sorted(list(db_pop.entity_name2num_fk.values()))
+#    print(db_pop.entity_name2num_fk)
+#    sorted(list(db_pop.entity_name2num_fk.values()))
