@@ -35,43 +35,44 @@ input_sql = """CREATE TABLE Employee (
       );
     """
 
-input_sql_2 = """CREATE TABLE Department (
-  deptNo CHAR(9),
-  deptName VARCHAR(50),
-  mgrEmpNo CHAR(50),
-  PRIMARY KEY (deptNo)
-  );
-CREATE TABLE Employee (
-  empNo CHAR(9),
+input_sql_2 = """CREATE TABLE Employee (
+  empNo INT,
   fName VARCHAR(50),
   lName VARCHAR(50),
   address VARCHAR(50),
   DOB DATE,
   sex VARCHAR(6),
   position VARCHAR(30),
-  deptNo CHAR(9),
-  PRIMARY KEY (empNo),
-  FOREIGN KEY (deptNo) REFERENCES Department (deptNo) on Delete cascade
-  );
+  deptNo INT,
+  PRIMARY KEY (empNo)
+);
+CREATE TABLE Department (
+  deptNo INT,
+  deptName VARCHAR(50),
+  mgrEmpNo INT,
+  PRIMARY KEY (deptNo),
+  FOREIGN KEY (mgrEmpNo) REFERENCES Employee (empNo)
+);
 CREATE TABLE Project (
-  projNo CHAR(9),
+  projNo INT,
   projName VARCHAR(50),
-  deptNo CHAR(9),
+  deptNo INT,
   PRIMARY KEY (projNo),
-  FOREIGN KEY (deptNo) REFERENCES Department (deptNo) on Delete cascade
+  FOREIGN KEY (deptNo) REFERENCES Department (deptNo)
   );
 CREATE TABLE WorksOn (
-  empNo CHAR(9),
-  projNo CHAR(9),
+  empNo INT,
+  projNo INT,
   dateworked Date,
   hoursWorked Number(10,2),
   PRIMARY KEY (empNo,projNo,dateworked),
-  FOREIGN KEY (EmpNo) REFERENCES Employee (EmpNo) on Delete cascade,
-  FOREIGN KEY (projNo) REFERENCES Project (projNo) on Delete cascade
+  FOREIGN KEY (EmpNo) REFERENCES Employee (EmpNo),
+  FOREIGN KEY (projNo) REFERENCES Project (projNo)
   );
-ALTER TABLE Department 
-  ADD CONSTRAINT FK_Department_Employee FOREIGN KEY (mgrEmpNo) 
-    REFERENCES Employee (empNo)
-    on Delete cascade
+  
+ALTER TABLE Employee 
+  ADD CONSTRAINT FK_Department_Employee FOREIGN KEY (deptNo) 
+    REFERENCES Department (deptNo)
+    ON DELETE SET NULL
   ;
   """
