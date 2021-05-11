@@ -23,9 +23,13 @@ class SpecificDBPopulator(object):
         self._update_employees()
         self._generate_projects()
         self._generate_works_on()
-        with open(self.output_file, 'w') as f:
+        if self.output_file is None:
             for s in self.statements:
-                f.write(s + "\n")
+                print(s)
+        else:
+            with open(self.output_file, 'w') as f:
+                for s in self.statements:
+                    f.write(s + "\n")
 
     def _generate_employees(self):
 

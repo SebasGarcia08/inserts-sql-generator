@@ -14,27 +14,27 @@ CREATE TABLE Department (
   deptName VARCHAR(50),
   mgrEmpNo INT,
   PRIMARY KEY (deptNo),
-  FOREIGN KEY (mgrEmpNo) REFERENCES Employee (empNo)
+  FOREIGN KEY (mgrEmpNo) REFERENCES Employee (empNo) ON  DELETE SET NULL
 );
 CREATE TABLE Project (
   projNo INT,
   projName VARCHAR(50),
   deptNo INT,
   PRIMARY KEY (projNo),
-  FOREIGN KEY (deptNo) REFERENCES Department (deptNo)
+  FOREIGN KEY (deptNo) REFERENCES Department (deptNo) ON  DELETE CASCADE
   );
 CREATE TABLE WorksOn (
   empNo INT,
   projNo INT,
   dateworked Date,
   hoursWorked Number(10,2),
-  PRIMARY KEY (empNo,projNo),
-  FOREIGN KEY (EmpNo) REFERENCES Employee (EmpNo),
-  FOREIGN KEY (projNo) REFERENCES Project (projNo)
+  PRIMARY KEY (empNo,projNo,dateworked),
+  FOREIGN KEY (EmpNo) REFERENCES Employee (EmpNo) ON DELETE SET NULL,
+  FOREIGN KEY (projNo) REFERENCES Project (projNo) ON DELETE CASCADE
   );
 
 ALTER TABLE Employee
   ADD CONSTRAINT FK_Department_Employee FOREIGN KEY (deptNo)
     REFERENCES Department (deptNo)
-    ON DELETE SET NULL
+    ON DELETE CASCADE
   ;

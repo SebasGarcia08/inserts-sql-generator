@@ -14,7 +14,7 @@ class DBPopulator(object):
         self.db_tree = dict()
 
     def generate_inserts(self):
-        for entity_subtree in self.
+        raise ValueError("Not implemented")
 
 
     @staticmethod
