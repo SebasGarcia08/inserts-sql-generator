@@ -63,13 +63,13 @@ class SpecificDBPopulator(object):
     def _generate_projects(self):
         for i in range(1, (self.n // 2) + 1):
             self.statements.append(f"INSERT INTO Project (projNo, projName, deptNo) "
-                                   f"VALUES ({i}, {self.faker.bs()}, {i})")
+                                   f"VALUES ({i}, {self.faker.bs()}, {i});")
 
     def _generate_works_on(self):
         for i in range(1, self.n+1):
             date = f"TO_DATE('{self.faker.date_between()}','YYYY-MM-DD')"
             self.statements.append(f"INSERT INTO WorksOn(empNo, projNo, dateworked, hoursWorked) "
-                                   f"VALUES ({i},{i},{date},{random.randint(1,10)})")
+                                   f"VALUES ({i},{i},{date},{random.randint(1,10)});")
 
 
 if __name__ == "__main__":
